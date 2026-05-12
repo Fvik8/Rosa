@@ -265,7 +265,7 @@ const Hero = () => {
           <div className="absolute inset-0 bg-rosa-beige hand-drawn-border sketch-shadow overflow-hidden leaf-pattern">
             <div className="absolute inset-6 bg-rosa-green/20 rounded-t-full border border-rosa-charcoal/20 flex items-end justify-center pb-12 overflow-hidden">
                <img
-                src={`${IMAGE_BASE_URL}Mockup%20branding.png`}
+                src={`${IMAGE_BASE_URL}TA-2026-05-11-18-52-08-_Astunning-2138193647(1).png`}
                 alt="Rosa Interior"
                 className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-multiply"
               />
