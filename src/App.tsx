@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Coffee, Flower2, Instagram, MapPin, Menu as MenuIcon, Plus, Search, ShoppingBag, Trash2, X, Minus } from "lucide-react";
+import { Coffee, Flower2, Instagram, MapPin, Menu as MenuIcon, Plus, Search, ShoppingBag, Trash2, X } from "lucide-react";
 import { useState, useRef, useMemo, type RefObject } from "react";
 import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 
+// Пътят към основната папка с изображения в GitHub
 const IMAGE_BASE_URL = "https://raw.githubusercontent.com/Fvik8/Rosa/main/Images/";
 
 // --- Types ---
@@ -29,14 +30,12 @@ const CartDrawer = ({
   isOpen, 
   onClose, 
   cart, 
-  onRemove,
-  onUpdateQuantity 
+  onRemove 
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
   cart: CartItem[]; 
   onRemove: (id: string) => void;
-  onUpdateQuantity: (id: string, delta: number) => void;
 }) => {
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
@@ -91,12 +90,8 @@ const CartDrawer = ({
                           <Trash2 size={14} />
                         </button>
                       </div>
-                      <div className="flex justify-between items-center mt-2">
-                        <div className="flex items-center gap-3 border border-rosa-charcoal/10 rounded-full px-2 py-1">
-                            <button onClick={() => onUpdateQuantity(item.id, -1)} className="hover:text-rosa-green"><Minus size={12}/></button>
-                            <span className="text-xs font-medium w-4 text-center">{item.quantity}</span>
-                            <button onClick={() => onUpdateQuantity(item.id, 1)} className="hover:text-rosa-green"><Plus size={12}/></button>
-                        </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] uppercase tracking-widest opacity-40">Qty: {item.quantity}</span>
                         <span className="font-sans text-xs font-medium">£{(item.price * item.quantity).toFixed(2)}</span>
                       </div>
                     </div>
@@ -123,7 +118,6 @@ const CartDrawer = ({
   );
 };
 
-// ... (Navbar и Hero компонентите остават същите като в предишния отговор) ...
 const Navbar = ({ 
   onSearchIconClick, 
   cartCount, 
@@ -252,6 +246,7 @@ const Hero = () => {
         >
           <div className="absolute inset-0 bg-rosa-beige hand-drawn-border sketch-shadow overflow-hidden leaf-pattern">
             <div className="absolute inset-6 bg-rosa-green/20 rounded-t-full border border-rosa-charcoal/20 flex items-end justify-center pb-12 overflow-hidden">
+               {/* Обновено изображение за Hero секцията */}
                <img
                 src={`${IMAGE_BASE_URL}Mockup%20branding.png`}
                 alt="Rosa Interior"
@@ -268,6 +263,10 @@ const Hero = () => {
           </div>
         </motion.div>
       </div>
+
+      <svg className="absolute bottom-[100px] right-12 opacity-10 hidden lg:block" width="120" height="80" viewBox="0 0 120 80">
+        <path d="M10 70 Q30 10 60 40 T110 20" fill="none" stroke="#2C2C2C" strokeWidth="1" />
+      </svg>
     </section>
   );
 };
@@ -290,6 +289,7 @@ const AboutSection = () => (
           className="relative"
         >
           <div className="aspect-[4/5] rounded-sm sketch-shadow hand-drawn-border overflow-hidden bg-rosa-beige leaf-pattern p-4">
+            {/* Обновено изображение за About секцията */}
             <img 
               src={`${IMAGE_BASE_URL}Monstera%20Deliciosa.png`} 
               alt="Lush green plants" 
@@ -309,6 +309,16 @@ const AboutSection = () => (
               We believe that every home deserves a touch of nature. Our boutique curates the finest boutique plants and exotic blooms, paired perfectly with our artisanal coffee roasted in small batches right here in the city.
             </p>
           </div>
+          <div className="flex gap-10 mt-12">
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] uppercase tracking-widest font-bold text-rosa-green">Rare</span>
+              <span className="font-serif italic text-xl">Boutique Blooms</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] uppercase tracking-widest font-bold text-rosa-green">Roast</span>
+              <span className="font-serif italic text-xl">Arabica Select</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -316,6 +326,7 @@ const AboutSection = () => (
 );
 
 const MenuSection = ({ onAdd }: { onAdd: (item: Product) => void }) => {
+  // Данни за менюто с обновени GitHub линкове
   const menuData: Product[] = [
     { id: "m1", title: "Rose & Pistachio Latte", price: 5.50, url: `${IMAGE_BASE_URL}Rose%20%26%20Pistachio%20Latte.png`, category: "cafe" },
     { id: "m2", title: "Hibiscus Cold Brew", price: 4.50, url: `${IMAGE_BASE_URL}Hibiscus%20Cold%20Brew.png`, category: "cafe" },
@@ -336,10 +347,9 @@ const MenuSection = ({ onAdd }: { onAdd: (item: Product) => void }) => {
               </div>
               <div className="flex items-center gap-4">
                 <span className="opacity-50 font-sans text-xs">£{item.price.toFixed(2)}</span>
-                {/* БУТОН ЗА ДОБАВЯНЕ */}
                 <button 
                   onClick={() => onAdd(item)}
-                  className="w-8 h-8 rounded-full border border-rosa-charcoal/10 flex items-center justify-center hover:bg-rosa-green hover:text-white transition-all"
+                  className="w-8 h-8 rounded-full border border-rosa-charcoal/10 flex items-center justify-center hover:bg-rosa-green hover:border-rosa-green hover:text-white transition-all transform scale-90 group-hover:scale-100 opacity-0 group-hover:opacity-100"
                 >
                   <Plus size={14} />
                 </button>
@@ -357,7 +367,8 @@ const MenuSection = ({ onAdd }: { onAdd: (item: Product) => void }) => {
               <img 
                 src={item.url} 
                 alt={item.title} 
-                className="w-full h-full object-cover rounded-sm opacity-80"
+                className="w-full h-full object-cover rounded-sm opacity-80 group-hover:opacity-100 transition-opacity"
+                referrerPolicy="no-referrer"
               />
               <button 
                 onClick={() => onAdd(item)}
@@ -372,8 +383,11 @@ const MenuSection = ({ onAdd }: { onAdd: (item: Product) => void }) => {
 
       <div className="p-12 bg-rosa-green text-white flex flex-col justify-between">
         <div>
-          <h3 className="text-[10px] uppercase tracking-widest opacity-80 mb-4">Identity</h3>
-          <p className="text-xl font-serif italic">Sustainable materials, hand-drawn lines.</p>
+          <h3 className="text-[10px] uppercase tracking-widest opacity-80 mb-4">Packaging & Identity</h3>
+          <p className="text-xl font-serif italic leading-snug">Sustainable, recycled materials printed with hand-drawn botanical lines.</p>
+        </div>
+        <div className="text-[10px] uppercase tracking-[0.3em] font-medium opacity-60">
+          Stationery Mockup 01
         </div>
       </div>
     </section>
@@ -407,47 +421,182 @@ const GallerySection = ({
       <div className="max-w-7xl mx-auto">
         <SectionHeading subtitle="Curated Greenery" title="Selected for the Modern Home" />
         
+        {/* Search Bar */}
         <div className="max-w-md mx-auto mb-16 relative">
-          <input 
-            ref={searchRef as RefObject<HTMLInputElement>}
-            type="text"
-            placeholder="Search our collection..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-transparent border-b border-rosa-charcoal/20 py-4 pl-10 focus:outline-none focus:border-rosa-green font-serif italic text-lg"
-          />
-          <Search size={18} className="absolute left-0 top-1/2 -translate-y-1/2 text-rosa-charcoal/40" />
+          <div className="relative group">
+            <input 
+              ref={searchRef as RefObject<HTMLInputElement>}
+              type="text"
+              placeholder="Search our collection..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-transparent border-b border-rosa-charcoal/20 py-4 pl-10 pr-4 focus:outline-none focus:border-rosa-green transition-colors font-serif italic text-lg"
+            />
+            <Search 
+              size={18} 
+              className="absolute left-0 top-1/2 -translate-y-1/2 text-rosa-charcoal/40 group-focus-within:text-rosa-green transition-colors" 
+            />
+          </div>
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery("")}
+              className="absolute right-0 top-1/2 -translate-y-1/2 p-2 hover:text-rosa-green transition-colors"
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {filteredPlants.map((plant) => (
-            <div key={plant.id} className="group relative">
-              <div className="aspect-[3/4] rounded-sm hand-drawn-border sketch-shadow overflow-hidden mb-6 bg-rosa-beige p-2">
-                <img src={plant.url} alt={plant.title} className="w-full h-full object-cover rounded-sm group-hover:scale-105 transition-transform duration-700" />
-                <button 
-                  onClick={() => onAdd(plant)}
-                  className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-full text-[10px] uppercase font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-rosa-green hover:text-white flex items-center gap-2"
-                >
-                  <Plus size={12} /> Add
-                </button>
-              </div>
-              <div className="flex justify-between items-center px-1">
-                <h4 className="font-serif text-xl font-light">{plant.title}</h4>
-                <span className="text-rosa-green-dark opacity-60 text-xs">£{plant.price.toFixed(2)}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <motion.div 
+          layout
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredPlants.map((plant) => (
+              <motion.div
+                key={plant.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                className="group cursor-pointer relative"
+              >
+                <div className="aspect-[3/4] rounded-sm hand-drawn-border sketch-shadow overflow-hidden mb-6 relative bg-rosa-beige p-2">
+                  <img 
+                    src={plant.url} 
+                    alt={plant.title} 
+                    className="w-full h-full object-cover rounded-sm group-hover:scale-105 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-rosa-green/0 group-hover:bg-rosa-green/5 transition-colors" />
+                  
+                  {/* Subtle Add Overlay */}
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); onAdd(plant); }}
+                    className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm self-center text-rosa-charcoal px-4 py-2 rounded-full text-[10px] uppercase tracking-widest font-bold shadow-lg opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all hover:bg-rosa-green hover:text-white flex items-center gap-2"
+                  >
+                    <Plus size={12} /> Add
+                  </button>
+                </div>
+                <div className="flex justify-between items-center px-1">
+                  <h4 className="font-serif text-xl font-light">{plant.title}</h4>
+                  <span className="text-rosa-green-dark opacity-60 font-sans text-xs">£{plant.price.toFixed(2)}</span>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {filteredPlants.length === 0 && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20"
+          >
+            <p className="font-serif italic text-rosa-charcoal/40 text-2xl">No botanical match found for "{searchQuery}"</p>
+          </motion.div>
+        )}
       </div>
     </section>
   );
 };
 
+const MockupSection = () => (
+  <section className="py-32 px-6 lg:px-12 bg-white text-rosa-charcoal overflow-hidden border-t border-rosa-charcoal/10">
+    <div className="max-w-7xl mx-auto">
+      <div className="grid lg:grid-cols-2 gap-20 items-center">
+        <div className="order-2 lg:order-1">
+          <SectionHeading subtitle="Identity" title="Beauty in Every Detail" centered={false} />
+          <p className="text-rosa-charcoal opacity-70 text-lg mb-12 max-w-lg leading-relaxed font-light">
+            Our identity is rooted in simplicity. From the hand-drawn leaves on our biodegradable cups to the textured linen of our carry bags, every touchpoint at Rosa is designed to feel as natural as the plants we sell.
+          </p>
+          <div className="space-y-4">
+            <div className="p-8 border border-rosa-charcoal/10 rounded-sm hover:bg-rosa-green/5 transition-colors group hand-drawn-border">
+              <span className="text-rosa-green-dark font-sans text-[10px] uppercase tracking-widest mb-2 block font-medium">Stationery</span>
+              <h3 className="text-2xl font-serif italic mb-2">Linen Fiber Gift Cards</h3>
+              <p className="text-xs opacity-50 font-light">Sourced from sustainably managed forests in the UK.</p>
+            </div>
+            <div className="p-8 border border-rosa-charcoal/10 rounded-sm hover:bg-rosa-green/5 transition-colors group hand-drawn-border">
+              <span className="text-rosa-green-dark font-sans text-[10px] uppercase tracking-widest mb-2 block font-medium">Eco-Packaging</span>
+              <h3 className="text-2xl font-serif italic mb-2">Plantable Kraft Wrap</h3>
+              <p className="text-xs opacity-50 font-light">Our flower wrapping contains wildflower seeds. Plant it, watch it bloom.</p>
+            </div>
+          </div>
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, rotate: 5, x: 50 }}
+          whileInView={{ opacity: 1, rotate: 0, x: 0 }}
+          viewport={{ once: true }}
+          className="order-1 lg:order-2 grid grid-cols-2 gap-8"
+        >
+          <div className="pt-20">
+            <div className="p-3 bg-white hand-drawn-border sketch-shadow">
+               <img 
+                src={`${IMAGE_BASE_URL}Mockup%20branding.png`} 
+                alt="Mockup branding" 
+                className="rounded-sm"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          </div>
+          <div>
+            <div className="p-3 bg-white hand-drawn-border sketch-shadow">
+              <img 
+                src={`${IMAGE_BASE_URL}Flower%20wrap.png`} 
+                alt="Flower wrap" 
+                className="rounded-sm"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+);
+
 const Footer = () => (
   <footer id="visit" className="bg-rosa-cream pt-32 pb-12 px-6 lg:px-12 border-t border-rosa-charcoal/10">
-    <div className="max-w-7xl mx-auto text-center">
-      <h2 className="font-serif text-5xl mb-8 text-rosa-charcoal font-light">Rosa.</h2>
-      <p className="text-[10px] uppercase tracking-widest opacity-30">© 2024 Rosa Boutique Ltd.</p>
+    <div className="max-w-7xl mx-auto">
+      <div className="grid md:grid-cols-4 gap-12 mb-20">
+        <div className="col-span-2">
+          <h2 className="font-serif text-5xl mb-8 text-rosa-charcoal font-light">Rosa.</h2>
+          <div className="flex gap-4">
+            <a href="#" className="w-12 h-12 border border-rosa-charcoal/10 rounded-full flex items-center justify-center text-rosa-charcoal hover:bg-rosa-charcoal hover:text-white transition-all">
+              <Instagram size={18} />
+            </a>
+            <a href="#" className="w-12 h-12 border border-rosa-charcoal/10 rounded-full flex items-center justify-center text-rosa-charcoal hover:bg-rosa-charcoal hover:text-white transition-all">
+              <MapPin size={18} />
+            </a>
+          </div>
+        </div>
+        
+        <div className="space-y-6">
+          <h4 className="font-sans font-medium text-[10px] uppercase tracking-widest opacity-40">Visit Us</h4>
+          <address className="not-italic text-rosa-charcoal opacity-80 space-y-2 font-serif text-lg leading-snug">
+            <p>12 Marylebone High St</p>
+            <p>London, W1U 4NS</p>
+            <br />
+            <p className="font-medium text-sm font-sans uppercase">Mon—Fri: 08:30—18:00</p>
+            <p className="font-medium text-sm font-sans uppercase">Sat—Sun: 09:00—19:00</p>
+          </address>
+        </div>
+
+        <div className="space-y-6">
+          <h4 className="font-sans font-medium text-[10px] uppercase tracking-widest opacity-40">Contact</h4>
+          <div className="space-y-4 font-serif text-lg">
+            <a href="mailto:hello@rosa-london.com" className="block text-rosa-charcoal hover:text-rosa-green transition-colors italic">hello@rosa-london.com</a>
+            <a href="tel:+442079460011" className="block text-rosa-charcoal hover:text-rosa-green transition-colors">+44 (0) 20 7946 0011</a>
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-rosa-charcoal/10 text-[10px] uppercase tracking-widest font-sans font-medium opacity-30 text-rosa-charcoal">
+        <p>© 2024 Rosa Boutique Ltd. All rights reserved.</p>
+        <p>Hand-drawn in Central London.</p>
+      </div>
     </div>
   </footer>
 );
@@ -456,6 +605,8 @@ export default function App() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
   const addToCart = (product: Product) => {
     setCart(prev => {
@@ -474,21 +625,19 @@ export default function App() {
     setCart(prev => prev.filter(item => item.id !== id));
   };
 
-  const updateQuantity = (id: string, delta: number) => {
-    setCart(prev => prev.map(item => {
-        if (item.id === id) {
-            const newQty = Math.max(1, item.quantity + delta);
-            return { ...item, quantity: newQty };
-        }
-        return item;
-    }));
+  const focusSearch = () => {
+    const el = searchInputRef.current;
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => el.focus(), 600);
+    }
   };
 
   return (
     <div className="min-h-screen font-sans selection:bg-rosa-green/20 overflow-x-hidden">
       <Navbar 
-        onSearchIconClick={() => searchInputRef.current?.focus()} 
-        cartCount={cart.reduce((a, b) => a + b.quantity, 0)} 
+        onSearchIconClick={focusSearch} 
+        cartCount={cartCount} 
         onBagClick={() => setIsCartOpen(true)} 
       />
       
@@ -497,13 +646,18 @@ export default function App() {
         onClose={() => setIsCartOpen(false)} 
         cart={cart} 
         onRemove={removeFromCart} 
-        onUpdateQuantity={updateQuantity}
       />
 
       <Hero />
+      
+      <div className="bg-rosa-cream pt-20">
+         <SectionHeading subtitle="The Oasis" title="Botanical Bespoke" />
+      </div>
+      
       <AboutSection />
       <MenuSection onAdd={addToCart} />
       <GallerySection searchRef={searchInputRef} onAdd={addToCart} />
+      <MockupSection />
       <Footer />
     </div>
   );
