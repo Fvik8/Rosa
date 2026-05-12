@@ -1,0 +1,659 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { Coffee, Flower2, Instagram, MapPin, Menu as MenuIcon, Plus, Search, ShoppingBag, Trash2, X } from "lucide-react";
+import { useState, useRef, useMemo, type RefObject } from "react";
+import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
+import heroImg from "./assets/images/regenerated_image_1778525995083.png";
+
+// --- Types ---
+
+interface Product {
+  id: string;
+  title: string;
+  price: number;
+  url: string;
+  category: "plant" | "cafe";
+}
+
+interface CartItem extends Product {
+  quantity: number;
+}
+
+// --- Components ---
+
+const CartDrawer = ({ 
+  isOpen, 
+  onClose, 
+  cart, 
+  onRemove 
+}: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  cart: CartItem[]; 
+  onRemove: (id: string) => void;
+}) => {
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-rosa-charcoal/20 backdrop-blur-sm z-[60]"
+          />
+          <motion.div 
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-[70] shadow-2xl p-8 flex flex-col"
+          >
+            <div className="flex justify-between items-center mb-12">
+              <h2 className="font-serif text-3xl font-light">Your Bag</h2>
+              <button onClick={onClose} className="p-2 hover:bg-rosa-cream rounded-full transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-8 pr-2">
+              {cart.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center opacity-30 text-center px-8">
+                  <ShoppingBag size={48} strokeWidth={1} className="mb-4" />
+                  <p className="font-serif italic text-lg text-rosa-charcoal">Your bag is currently empty.</p>
+                </div>
+              ) : (
+                cart.map((item) => (
+                  <motion.div 
+                    layout
+                    key={item.id} 
+                    className="flex gap-4 group"
+                  >
+                    <div className="w-20 h-24 bg-rosa-beige rounded-sm overflow-hidden flex-shrink-0 hand-drawn-border p-1">
+                      <img src={item.url} alt={item.title} className="w-full h-full object-cover rounded-sm" />
+                    </div>
+                    <div className="flex-1 flex flex-col justify-center">
+                      <div className="flex justify-between items-start mb-1">
+                        <h4 className="font-serif text-lg leading-tight">{item.title}</h4>
+                        <button 
+                          onClick={() => onRemove(item.id)}
+                          className="text-rosa-charcoal/30 hover:text-red-500 transition-colors p-1"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] uppercase tracking-widest opacity-40">Qty: {item.quantity}</span>
+                        <span className="font-sans text-xs font-medium">£{(item.price * item.quantity).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </div>
+
+            {cart.length > 0 && (
+              <div className="mt-8 pt-8 border-t border-rosa-charcoal/10">
+                <div className="flex justify-between items-end mb-8">
+                  <span className="text-[10px] uppercase tracking-[0.3em] font-medium opacity-40">Total</span>
+                  <span className="text-3xl font-serif">£{total.toFixed(2)}</span>
+                </div>
+                <button className="w-full bg-rosa-charcoal text-white py-5 rounded-sm hover:bg-rosa-green transition-all uppercase tracking-[0.2em] text-[10px] shadow-lg shadow-rosa-charcoal/10">
+                  Proceed to Checkout
+                </button>
+              </div>
+            )}
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const Navbar = ({ 
+  onSearchIconClick, 
+  cartCount, 
+  onBagClick 
+}: { 
+  onSearchIconClick: () => void;
+  cartCount: number;
+  onBagClick: () => void;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <nav className="fixed top-0 w-full z-50 bg-rosa-cream/80 backdrop-blur-md border-b border-rosa-charcoal/10">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
+        <div className="flex items-center gap-12">
+          <a href="#" className="font-serif text-2xl tracking-widest uppercase font-semibold text-rosa-charcoal">Rosa</a>
+          <div className="hidden md:flex gap-8 text-[10px] uppercase tracking-[0.2em] font-medium text-rosa-charcoal/70">
+            <a href="#about" className="hover:text-rosa-green transition-colors">The Story</a>
+            <a href="#menu" className="hover:text-rosa-green transition-colors">The Cafe</a>
+            <a href="#gallery" className="hover:text-rosa-green transition-colors">The Gallery</a>
+          </div>
+        </div>
+        
+        <div className="hidden md:flex items-center gap-6">
+          <button 
+            onClick={onSearchIconClick}
+            className="text-rosa-charcoal/60 hover:text-rosa-green transition-colors flex items-center gap-2 group"
+          >
+            <Search size={18} />
+            <span className="text-[10px] uppercase font-medium tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Search</span>
+          </button>
+          <button 
+            onClick={onBagClick}
+            className="w-10 h-10 border border-rosa-charcoal rounded-full flex items-center justify-center cursor-pointer hover:bg-rosa-charcoal hover:text-white transition-all relative"
+          >
+            <span className="text-[10px] uppercase font-medium">Bag</span>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-rosa-green text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                {cartCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
+          {isOpen ? <X /> : <MenuIcon />}
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-20 left-0 w-full bg-rosa-cream border-b border-rosa-charcoal/10 p-6 flex flex-col gap-4 md:hidden"
+          >
+            <a href="#about" onClick={() => setIsOpen(false)} className="text-sm uppercase tracking-widest font-serif">The Story</a>
+            <a href="#menu" onClick={() => setIsOpen(false)} className="text-sm uppercase tracking-widest font-serif">The Cafe</a>
+            <a href="#gallery" onClick={() => setIsOpen(false)} className="text-sm uppercase tracking-widest font-serif">The Gallery</a>
+            <button onClick={() => { onBagClick(); setIsOpen(false); }} className="text-sm uppercase tracking-widest font-serif flex items-center gap-2">
+              Your Bag ({cartCount})
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
+  );
+};
+
+const Hero = () => {
+  const targetRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: targetRef,
+    offset: ["start start", "end start"],
+  });
+
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, 50]);
+
+  return (
+    <section ref={targetRef} className="relative h-screen flex items-center px-6 lg:px-12 bg-rosa-cream overflow-hidden">
+      <div className="max-w-7xl mx-auto w-full flex flex-col md:flex-row items-center gap-12 lg:gap-20">
+        <div className="w-full md:w-1/2 flex flex-col gap-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-block px-3 py-1 bg-rosa-green/10 text-rosa-green-dark rounded-full text-[10px] uppercase tracking-widest w-fit"
+          >
+            Marylebone, London
+          </motion.div>
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-rosa-charcoal text-6xl lg:text-8xl font-serif leading-[0.95] font-light"
+          >
+            A <span className="italic">green oasis</span> <br /> for the urban <br /> soul.
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-lg font-light opacity-80 max-w-md leading-relaxed"
+          >
+            Bespoke botanical arrangements paired with artisan coffee. Designed for plant parents and coffee connoisseurs alike.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="flex gap-4"
+          >
+            <a href="#gallery" className="bg-rosa-charcoal text-white px-10 py-5 text-[10px] uppercase tracking-[0.2em] rounded-sm hover:bg-rosa-green transition-colors text-center inline-block">
+              Order Flowers
+            </a>
+            <a href="#menu" className="border border-rosa-charcoal text-rosa-charcoal px-10 py-5 text-[10px] uppercase tracking-[0.2em] rounded-sm hover:bg-rosa-charcoal hover:text-white transition-all text-center inline-block">
+              View Menu
+            </a>
+          </motion.div>
+        </div>
+
+        <motion.div 
+          style={{ opacity, y }}
+          className="w-full md:w-1/2 h-[500px] lg:h-[600px] relative"
+        >
+          <div className="absolute inset-0 bg-rosa-beige hand-drawn-border sketch-shadow overflow-hidden leaf-pattern">
+            <div className="absolute inset-6 bg-rosa-green/20 rounded-t-full border border-rosa-charcoal/20 flex items-end justify-center pb-12 overflow-hidden">
+               <img
+                src={heroImg}
+                alt="Rosa Interior"
+                className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-multiply"
+              />
+              <svg width="200" height="300" viewBox="0 0 100 150" className="opacity-40 relative z-10">
+                <path d="M50 140 Q50 70 50 10 M50 50 Q80 30 90 60 M50 80 Q20 60 10 90 M50 110 Q70 100 80 130" stroke="#2C2C2C" fill="none" strokeWidth="1" strokeLinecap="round" />
+              </svg>
+            </div>
+          </div>
+          <div className="absolute -bottom-6 -left-6 bg-white p-6 hand-drawn-border w-52 sketch-shadow">
+            <p className="font-serif text-sm italic">"The best matcha latte in W1U."</p>
+            <p className="text-[10px] uppercase tracking-tighter mt-2 opacity-50">— Vogue London</p>
+          </div>
+        </motion.div>
+      </div>
+
+      <svg className="absolute bottom-[100px] right-12 opacity-10 hidden lg:block" width="120" height="80" viewBox="0 0 120 80">
+        <path d="M10 70 Q30 10 60 40 T110 20" fill="none" stroke="#2C2C2C" strokeWidth="1" />
+      </svg>
+    </section>
+  );
+};
+
+const SectionHeading = ({ subtitle, title, centered = true }: { subtitle: string, title: string, centered?: boolean }) => (
+  <div className={`mb-16 ${centered ? 'text-center' : ''}`}>
+    <span className="text-rosa-green-dark font-sans text-[10px] uppercase tracking-[0.3em] block mb-4">{subtitle}</span>
+    <h2 className="text-4xl md:text-5xl font-serif text-rosa-charcoal leading-[1.1] font-light">{title}</h2>
+  </div>
+);
+
+const AboutSection = () => (
+  <section id="about" className="py-32 px-6 lg:px-12 bg-rosa-cream">
+    <div className="max-w-7xl mx-auto">
+      <div className="grid md:grid-cols-2 gap-20 items-center">
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          className="relative"
+        >
+          <div className="aspect-[4/5] rounded-sm sketch-shadow hand-drawn-border overflow-hidden bg-rosa-beige leaf-pattern p-4">
+            <img 
+              src="https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&q=80&w=1000" 
+              alt="Lush green plants" 
+              className="w-full h-full object-cover rounded-sm border border-rosa-charcoal/20"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        </motion.div>
+        
+        <div>
+          <SectionHeading subtitle="The Narrative" title="A haven for London's plant parents" centered={false} />
+          <div className="space-y-6 text-lg font-light opacity-80 leading-relaxed max-w-md">
+            <p>
+              Rosa was born from a simple dream: to create a sanctuary where the hustle of London fades into the rustle of leaves and the aroma of freshly roasted beans. 
+            </p>
+            <p>
+              We believe that every home deserves a touch of nature. Our boutique curates the finest boutique plants and exotic blooms, paired perfectly with our artisanal coffee roasted in small batches right here in the city.
+            </p>
+          </div>
+          <div className="flex gap-10 mt-12">
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] uppercase tracking-widest font-bold text-rosa-green">Rare</span>
+              <span className="font-serif italic text-xl">Boutique Blooms</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] uppercase tracking-widest font-bold text-rosa-green">Roast</span>
+              <span className="font-serif italic text-xl">Arabica Select</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const MenuSection = ({ onAdd }: { onAdd: (item: Product) => void }) => {
+  const menuData: Product[] = [
+    { id: "m1", title: "Rose & Pistachio Latte", price: 5.50, url: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&q=80&w=400", category: "cafe" },
+    { id: "m2", title: "Hibiscus Cold Brew", price: 4.50, url: "https://images.unsplash.com/photo-1501004318641-72ee7f12af70?auto=format&fit=crop&q=80&w=400", category: "cafe" },
+    { id: "m3", title: "Wildflower Honey Latte", price: 4.80, url: "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&q=80&w=400", category: "cafe" },
+    { id: "m4", title: "Avocado on Seeded Rye", price: 12.00, url: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=400", category: "cafe" }
+  ];
+
+  return (
+    <footer className="grid md:grid-cols-3 border-t border-rosa-charcoal/10 min-h-[300px] bg-white">
+      <div id="menu" className="p-12 border-r border-rosa-charcoal/10 flex flex-col justify-center">
+        <h3 className="text-[10px] uppercase tracking-widest text-rosa-green-dark mb-8">The Cafe Menu</h3>
+        <ul className="space-y-6 font-serif">
+          {menuData.map((item) => (
+            <li key={item.id} className="flex justify-between items-center group">
+              <div className="flex flex-col">
+                <span className="text-xl group-hover:text-rosa-green transition-colors">{item.title}</span>
+                <span className="text-xs italic opacity-40">House Specialty</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="opacity-50 font-sans text-xs">£{item.price.toFixed(2)}</span>
+                <button 
+                  onClick={() => onAdd(item)}
+                  className="w-8 h-8 rounded-full border border-rosa-charcoal/10 flex items-center justify-center hover:bg-rosa-green hover:border-rosa-green hover:text-white transition-all transform scale-90 group-hover:scale-100 opacity-0 group-hover:opacity-100"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+      
+      <div id="gallery-preview" className="p-12 border-r border-rosa-charcoal/10 flex flex-col justify-center bg-rosa-cream">
+        <h3 className="text-[10px] uppercase tracking-widest text-rosa-green-dark mb-8">The Collection</h3>
+        <div className="grid grid-cols-2 gap-4 flex-1">
+          {menuData.map(item => (
+            <div key={`img-${item.id}`} className="hand-drawn-border sketch-shadow overflow-hidden bg-white p-1 group relative">
+              <img 
+                src={item.url} 
+                alt={item.title} 
+                className="w-full h-full object-cover rounded-sm opacity-80 group-hover:opacity-100 transition-opacity"
+                referrerPolicy="no-referrer"
+              />
+              <button 
+                onClick={() => onAdd(item)}
+                className="absolute inset-0 bg-rosa-green/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
+              >
+                <Plus size={24} strokeWidth={3} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="p-12 bg-rosa-green text-white flex flex-col justify-between">
+        <div>
+          <h3 className="text-[10px] uppercase tracking-widest opacity-80 mb-4">Packaging & Identity</h3>
+          <p className="text-xl font-serif italic leading-snug">Sustainable, recycled materials printed with hand-drawn botanical lines.</p>
+        </div>
+        <div className="text-[10px] uppercase tracking-[0.3em] font-medium opacity-60">
+          Stationery Mockup 01
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+const GallerySection = ({ 
+  searchRef, 
+  onAdd 
+}: { 
+  searchRef?: RefObject<HTMLInputElement | null>;
+  onAdd: (item: Product) => void;
+}) => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const plants: Product[] = [
+    { id: "p1", url: "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&q=80&w=800", title: "Monstera Deliciosa", price: 35.00, category: "plant" },
+    { id: "p2", url: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?auto=format&fit=crop&q=80&w=800", title: "White Orchid Bouquet", price: 42.00, category: "plant" },
+    { id: "p3", url: "https://images.unsplash.com/photo-1509423350716-97f9360b4e09?auto=format&fit=crop&q=80&w=800", title: "Peace Lily", price: 28.00, category: "plant" },
+    { id: "p4", url: "https://images.unsplash.com/photo-1485955900006-10f4d324d445?auto=format&fit=crop&q=80&w=800", title: "Succulent Terrarium", price: 24.00, category: "plant" }
+  ];
+
+  const filteredPlants = useMemo(() => {
+    return plants.filter(plant => 
+      plant.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery, plants]);
+
+  return (
+    <section id="gallery" className="py-32 px-6 lg:px-12 bg-rosa-cream">
+      <div className="max-w-7xl mx-auto">
+        <SectionHeading subtitle="Curated Greenery" title="Selected for the Modern Home" />
+        
+        {/* Search Bar */}
+        <div className="max-w-md mx-auto mb-16 relative">
+          <div className="relative group">
+            <input 
+              ref={searchRef as RefObject<HTMLInputElement>}
+              type="text"
+              placeholder="Search our collection..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-transparent border-b border-rosa-charcoal/20 py-4 pl-10 pr-4 focus:outline-none focus:border-rosa-green transition-colors font-serif italic text-lg"
+            />
+            <Search 
+              size={18} 
+              className="absolute left-0 top-1/2 -translate-y-1/2 text-rosa-charcoal/40 group-focus-within:text-rosa-green transition-colors" 
+            />
+          </div>
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery("")}
+              className="absolute right-0 top-1/2 -translate-y-1/2 p-2 hover:text-rosa-green transition-colors"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        <motion.div 
+          layout
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredPlants.map((plant) => (
+              <motion.div
+                key={plant.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                className="group cursor-pointer relative"
+              >
+                <div className="aspect-[3/4] rounded-sm hand-drawn-border sketch-shadow overflow-hidden mb-6 relative bg-rosa-beige p-2">
+                  <img 
+                    src={plant.url} 
+                    alt={plant.title} 
+                    className="w-full h-full object-cover rounded-sm group-hover:scale-105 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-rosa-green/0 group-hover:bg-rosa-green/5 transition-colors" />
+                  
+                  {/* Subtle Add Overlay */}
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); onAdd(plant); }}
+                    className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm self-center text-rosa-charcoal px-4 py-2 rounded-full text-[10px] uppercase tracking-widest font-bold shadow-lg opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all hover:bg-rosa-green hover:text-white flex items-center gap-2"
+                  >
+                    <Plus size={12} /> Add
+                  </button>
+                </div>
+                <div className="flex justify-between items-center px-1">
+                  <h4 className="font-serif text-xl font-light">{plant.title}</h4>
+                  <span className="text-rosa-green-dark opacity-60 font-sans text-xs">£{plant.price.toFixed(2)}</span>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {filteredPlants.length === 0 && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20"
+          >
+            <p className="font-serif italic text-rosa-charcoal/40 text-2xl">No botanical match found for "{searchQuery}"</p>
+          </motion.div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+const MockupSection = () => (
+  <section className="py-32 px-6 lg:px-12 bg-white text-rosa-charcoal overflow-hidden border-t border-rosa-charcoal/10">
+    <div className="max-w-7xl mx-auto">
+      <div className="grid lg:grid-cols-2 gap-20 items-center">
+        <div className="order-2 lg:order-1">
+          <SectionHeading subtitle="Identity" title="Beauty in Every Detail" centered={false} />
+          <p className="text-rosa-charcoal opacity-70 text-lg mb-12 max-w-lg leading-relaxed font-light">
+            Our identity is rooted in simplicity. From the hand-drawn leaves on our biodegradable cups to the textured linen of our carry bags, every touchpoint at Rosa is designed to feel as natural as the plants we sell.
+          </p>
+          <div className="space-y-4">
+            <div className="p-8 border border-rosa-charcoal/10 rounded-sm hover:bg-rosa-green/5 transition-colors group hand-drawn-border">
+              <span className="text-rosa-green-dark font-sans text-[10px] uppercase tracking-widest mb-2 block font-medium">Stationery</span>
+              <h3 className="text-2xl font-serif italic mb-2">Linen Fiber Gift Cards</h3>
+              <p className="text-xs opacity-50 font-light">Sourced from sustainably managed forests in the UK.</p>
+            </div>
+            <div className="p-8 border border-rosa-charcoal/10 rounded-sm hover:bg-rosa-green/5 transition-colors group hand-drawn-border">
+              <span className="text-rosa-green-dark font-sans text-[10px] uppercase tracking-widest mb-2 block font-medium">Eco-Packaging</span>
+              <h3 className="text-2xl font-serif italic mb-2">Plantable Kraft Wrap</h3>
+              <p className="text-xs opacity-50 font-light">Our flower wrapping contains wildflower seeds. Plant it, watch it bloom.</p>
+            </div>
+          </div>
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, rotate: 5, x: 50 }}
+          whileInView={{ opacity: 1, rotate: 0, x: 0 }}
+          viewport={{ once: true }}
+          className="order-1 lg:order-2 grid grid-cols-2 gap-8"
+        >
+          <div className="pt-20">
+            <div className="p-3 bg-white hand-drawn-border sketch-shadow">
+               <img 
+                src="https://images.unsplash.com/photo-1554160116-73bb8a58e274?auto=format&fit=crop&q=80&w=800" 
+                alt="Mockup branding" 
+                className="rounded-sm"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          </div>
+          <div>
+            <div className="p-3 bg-white hand-drawn-border sketch-shadow">
+              <img 
+                src="https://images.unsplash.com/photo-1620989166449-36605030283e?auto=format&fit=crop&q=80&w=800" 
+                alt="Flower wrap" 
+                className="rounded-sm"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+);
+
+const Footer = () => (
+  <footer id="visit" className="bg-rosa-cream pt-32 pb-12 px-6 lg:px-12 border-t border-rosa-charcoal/10">
+    <div className="max-w-7xl mx-auto">
+      <div className="grid md:grid-cols-4 gap-12 mb-20">
+        <div className="col-span-2">
+          <h2 className="font-serif text-5xl mb-8 text-rosa-charcoal font-light">Rosa.</h2>
+          <div className="flex gap-4">
+            <a href="#" className="w-12 h-12 border border-rosa-charcoal/10 rounded-full flex items-center justify-center text-rosa-charcoal hover:bg-rosa-charcoal hover:text-white transition-all">
+              <Instagram size={18} />
+            </a>
+            <a href="#" className="w-12 h-12 border border-rosa-charcoal/10 rounded-full flex items-center justify-center text-rosa-charcoal hover:bg-rosa-charcoal hover:text-white transition-all">
+              <MapPin size={18} />
+            </a>
+          </div>
+        </div>
+        
+        <div className="space-y-6">
+          <h4 className="font-sans font-medium text-[10px] uppercase tracking-widest opacity-40">Visit Us</h4>
+          <address className="not-italic text-rosa-charcoal opacity-80 space-y-2 font-serif text-lg leading-snug">
+            <p>12 Marylebone High St</p>
+            <p>London, W1U 4NS</p>
+            <br />
+            <p className="font-medium text-sm font-sans uppercase">Mon—Fri: 08:30—18:00</p>
+            <p className="font-medium text-sm font-sans uppercase">Sat—Sun: 09:00—19:00</p>
+          </address>
+        </div>
+
+        <div className="space-y-6">
+          <h4 className="font-sans font-medium text-[10px] uppercase tracking-widest opacity-40">Contact</h4>
+          <div className="space-y-4 font-serif text-lg">
+            <a href="mailto:hello@rosa-london.com" className="block text-rosa-charcoal hover:text-rosa-green transition-colors italic">hello@rosa-london.com</a>
+            <a href="tel:+442079460011" className="block text-rosa-charcoal hover:text-rosa-green transition-colors">+44 (0) 20 7946 0011</a>
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-rosa-charcoal/10 text-[10px] uppercase tracking-widest font-sans font-medium opacity-30 text-rosa-charcoal">
+        <p>© 2024 Rosa Boutique Ltd. All rights reserved.</p>
+        <p>Hand-drawn in Central London.</p>
+      </div>
+    </div>
+  </footer>
+);
+
+export default function App() {
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
+
+  const addToCart = (product: Product) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      if (existing) {
+        return prev.map(item => 
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+    setIsCartOpen(true);
+  };
+
+  const removeFromCart = (id: string) => {
+    setCart(prev => prev.filter(item => item.id !== id));
+  };
+
+  const focusSearch = () => {
+    const el = searchInputRef.current;
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => el.focus(), 600);
+    }
+  };
+
+  return (
+    <div className="min-h-screen font-sans selection:bg-rosa-green/20 overflow-x-hidden">
+      <Navbar 
+        onSearchIconClick={focusSearch} 
+        cartCount={cartCount} 
+        onBagClick={() => setIsCartOpen(true)} 
+      />
+      
+      <CartDrawer 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+        cart={cart} 
+        onRemove={removeFromCart} 
+      />
+
+      <Hero />
+      
+      <div className="bg-rosa-cream pt-20">
+         <SectionHeading subtitle="The Oasis" title="Botanical Bespoke" />
+      </div>
+      
+      <AboutSection />
+      <MenuSection onAdd={addToCart} />
+      <GallerySection searchRef={searchInputRef} onAdd={addToCart} />
+      <MockupSection />
+      <Footer />
+    </div>
+  );
+}
