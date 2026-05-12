@@ -30,12 +30,14 @@ const CartDrawer = ({
   isOpen, 
   onClose, 
   cart, 
-  onRemove 
+  onRemove,
+  onUpdateQuantity
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
   cart: CartItem[]; 
   onRemove: (id: string) => void;
+  onUpdateQuantity: (id: string, delta: number) => void;
 }) => {
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
@@ -91,7 +93,23 @@ const CartDrawer = ({
                         </button>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] uppercase tracking-widest opacity-40">Qty: {item.quantity}</span>
+                        <div className="flex items-center gap-3 border border-rosa-charcoal/10 rounded-sm px-2 py-1">
+                          <button 
+                            onClick={() => onUpdateQuantity(item.id, -1)}
+                            className="text-[10px] hover:text-rosa-green transition-colors"
+                          >
+                            —
+                          </button>
+                          <span className="text-[10px] uppercase tracking-widest font-medium min-w-[20px] text-center">
+                            {item.quantity}
+                          </span>
+                          <button 
+                            onClick={() => onUpdateQuantity(item.id, 1)}
+                            className="text-[10px] hover:text-rosa-green transition-colors"
+                          >
+                            +
+                          </button>
+                        </div>
                         <span className="font-sans text-xs font-medium">£{(item.price * item.quantity).toFixed(2)}</span>
                       </div>
                     </div>
@@ -246,7 +264,6 @@ const Hero = () => {
         >
           <div className="absolute inset-0 bg-rosa-beige hand-drawn-border sketch-shadow overflow-hidden leaf-pattern">
             <div className="absolute inset-6 bg-rosa-green/20 rounded-t-full border border-rosa-charcoal/20 flex items-end justify-center pb-12 overflow-hidden">
-               {/* Обновено изображение за Hero секцията */}
                <img
                 src={`${IMAGE_BASE_URL}Mockup%20branding.png`}
                 alt="Rosa Interior"
@@ -289,7 +306,6 @@ const AboutSection = () => (
           className="relative"
         >
           <div className="aspect-[4/5] rounded-sm sketch-shadow hand-drawn-border overflow-hidden bg-rosa-beige leaf-pattern p-4">
-            {/* Обновено изображение за About секцията */}
             <img 
               src={`${IMAGE_BASE_URL}Monstera%20Deliciosa.png`} 
               alt="Lush green plants" 
@@ -326,7 +342,6 @@ const AboutSection = () => (
 );
 
 const MenuSection = ({ onAdd }: { onAdd: (item: Product) => void }) => {
-  // Данни за менюто с обновени GitHub линкове
   const menuData: Product[] = [
     { id: "m1", title: "Rose & Pistachio Latte", price: 5.50, url: `${IMAGE_BASE_URL}Rose%20%26%20Pistachio%20Latte.png`, category: "cafe" },
     { id: "m2", title: "Hibiscus Cold Brew", price: 4.50, url: `${IMAGE_BASE_URL}Hibiscus%20Cold%20Brew.png`, category: "cafe" },
@@ -347,9 +362,10 @@ const MenuSection = ({ onAdd }: { onAdd: (item: Product) => void }) => {
               </div>
               <div className="flex items-center gap-4">
                 <span className="opacity-50 font-sans text-xs">£{item.price.toFixed(2)}</span>
+                {/* ПРОМЯНА: бутонът е винаги видим */}
                 <button 
                   onClick={() => onAdd(item)}
-                  className="w-8 h-8 rounded-full border border-rosa-charcoal/10 flex items-center justify-center hover:bg-rosa-green hover:border-rosa-green hover:text-white transition-all transform scale-90 group-hover:scale-100 opacity-0 group-hover:opacity-100"
+                  className="w-8 h-8 rounded-full border border-rosa-charcoal/10 flex items-center justify-center hover:bg-rosa-green hover:border-rosa-green hover:text-white transition-all"
                 >
                   <Plus size={14} />
                 </button>
@@ -462,7 +478,8 @@ const GallerySection = ({
                 transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
                 className="group cursor-pointer relative"
               >
-                <div className="aspect-[3/4] rounded-sm hand-drawn-border sketch-shadow overflow-hidden mb-6 relative bg-rosa-beige p-2">
+                {/* ПРОМЯНА: само снимката в рамката, без overlay бутон */}
+                <div className="aspect-[3/4] rounded-sm hand-drawn-border sketch-shadow overflow-hidden mb-4 relative bg-rosa-beige p-2">
                   <img 
                     src={plant.url} 
                     alt={plant.title} 
@@ -470,18 +487,21 @@ const GallerySection = ({
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-rosa-green/0 group-hover:bg-rosa-green/5 transition-colors" />
-                  
-                  {/* Subtle Add Overlay */}
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); onAdd(plant); }}
-                    className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm self-center text-rosa-charcoal px-4 py-2 rounded-full text-[10px] uppercase tracking-widest font-bold shadow-lg opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all hover:bg-rosa-green hover:text-white flex items-center gap-2"
-                  >
-                    <Plus size={12} /> Add
-                  </button>
                 </div>
+
+                {/* ПРОМЯНА: бутонът е под картичката, винаги видим */}
                 <div className="flex justify-between items-center px-1">
-                  <h4 className="font-serif text-xl font-light">{plant.title}</h4>
-                  <span className="text-rosa-green-dark opacity-60 font-sans text-xs">£{plant.price.toFixed(2)}</span>
+                  <div>
+                    <h4 className="font-serif text-xl font-light">{plant.title}</h4>
+                    <span className="text-rosa-green-dark opacity-60 font-sans text-xs">£{plant.price.toFixed(2)}</span>
+                  </div>
+                  <motion.button 
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => { e.stopPropagation(); onAdd(plant); }}
+                    className="w-10 h-10 rounded-full bg-rosa-charcoal text-white flex items-center justify-center hover:bg-rosa-green transition-all shadow-md active:shadow-inner flex-shrink-0"
+                  >
+                    <ShoppingBag size={16} />
+                  </motion.button>
                 </div>
               </motion.div>
             ))}
@@ -625,6 +645,16 @@ export default function App() {
     setCart(prev => prev.filter(item => item.id !== id));
   };
 
+  const updateQuantity = (id: string, delta: number) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        const newQty = Math.max(1, item.quantity + delta);
+        return { ...item, quantity: newQty };
+      }
+      return item;
+    }));
+  };
+
   const focusSearch = () => {
     const el = searchInputRef.current;
     if (el) {
@@ -646,6 +676,7 @@ export default function App() {
         onClose={() => setIsCartOpen(false)} 
         cart={cart} 
         onRemove={removeFromCart} 
+        onUpdateQuantity={updateQuantity}
       />
 
       <Hero />
