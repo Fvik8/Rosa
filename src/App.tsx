@@ -6,7 +6,9 @@
 import { Coffee, Flower2, Instagram, MapPin, Menu as MenuIcon, Plus, Search, ShoppingBag, Trash2, X } from "lucide-react";
 import { useState, useRef, useMemo, type RefObject } from "react";
 import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
-import heroImg from "./assets/images/regenerated_image_1778525995083.png";
+
+// Пътят към основната папка с изображения в GitHub
+const IMAGE_BASE_URL = "https://raw.githubusercontent.com/Fvik8/Rosa/main/Images/";
 
 // --- Types ---
 
@@ -244,8 +246,9 @@ const Hero = () => {
         >
           <div className="absolute inset-0 bg-rosa-beige hand-drawn-border sketch-shadow overflow-hidden leaf-pattern">
             <div className="absolute inset-6 bg-rosa-green/20 rounded-t-full border border-rosa-charcoal/20 flex items-end justify-center pb-12 overflow-hidden">
+               {/* Обновено изображение за Hero секцията */}
                <img
-                src={heroImg}
+                src={`${IMAGE_BASE_URL}Mockup%20branding.png`}
                 alt="Rosa Interior"
                 className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-multiply"
               />
@@ -286,8 +289,9 @@ const AboutSection = () => (
           className="relative"
         >
           <div className="aspect-[4/5] rounded-sm sketch-shadow hand-drawn-border overflow-hidden bg-rosa-beige leaf-pattern p-4">
+            {/* Обновено изображение за About секцията */}
             <img 
-              src="https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&q=80&w=1000" 
+              src={`${IMAGE_BASE_URL}Monstera%20Deliciosa.png`} 
               alt="Lush green plants" 
               className="w-full h-full object-cover rounded-sm border border-rosa-charcoal/20"
               referrerPolicy="no-referrer"
@@ -322,15 +326,16 @@ const AboutSection = () => (
 );
 
 const MenuSection = ({ onAdd }: { onAdd: (item: Product) => void }) => {
+  // Данни за менюто с обновени GitHub линкове
   const menuData: Product[] = [
-    { id: "m1", title: "Rose & Pistachio Latte", price: 5.50, url: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&q=80&w=400", category: "cafe" },
-    { id: "m2", title: "Hibiscus Cold Brew", price: 4.50, url: "https://images.unsplash.com/photo-1501004318641-72ee7f12af70?auto=format&fit=crop&q=80&w=400", category: "cafe" },
-    { id: "m3", title: "Wildflower Honey Latte", price: 4.80, url: "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&q=80&w=400", category: "cafe" },
-    { id: "m4", title: "Avocado on Seeded Rye", price: 12.00, url: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=400", category: "cafe" }
+    { id: "m1", title: "Rose & Pistachio Latte", price: 5.50, url: `${IMAGE_BASE_URL}Rose%20%26%20Pistachio%20Latte.png`, category: "cafe" },
+    { id: "m2", title: "Hibiscus Cold Brew", price: 4.50, url: `${IMAGE_BASE_URL}Hibiscus%20Cold%20Brew.png`, category: "cafe" },
+    { id: "m3", title: "Wildflower Honey Latte", price: 4.80, url: `${IMAGE_BASE_URL}Wildflower%20Honey%20Latte.png`, category: "cafe" },
+    { id: "m4", title: "Avocado on Seeded Rye", price: 12.00, url: `${IMAGE_BASE_URL}Avocado%20on%20Seeded%20Rye.png`, category: "cafe" }
   ];
 
   return (
-    <footer className="grid md:grid-cols-3 border-t border-rosa-charcoal/10 min-h-[300px] bg-white">
+    <section className="grid md:grid-cols-3 border-t border-rosa-charcoal/10 min-h-[300px] bg-white">
       <div id="menu" className="p-12 border-r border-rosa-charcoal/10 flex flex-col justify-center">
         <h3 className="text-[10px] uppercase tracking-widest text-rosa-green-dark mb-8">The Cafe Menu</h3>
         <ul className="space-y-6 font-serif">
@@ -385,7 +390,7 @@ const MenuSection = ({ onAdd }: { onAdd: (item: Product) => void }) => {
           Stationery Mockup 01
         </div>
       </div>
-    </footer>
+    </section>
   );
 };
 
@@ -399,10 +404,10 @@ const GallerySection = ({
   const [searchQuery, setSearchQuery] = useState("");
 
   const plants: Product[] = [
-    { id: "p1", url: "https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&q=80&w=800", title: "Monstera Deliciosa", price: 35.00, category: "plant" },
-    { id: "p2", url: "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?auto=format&fit=crop&q=80&w=800", title: "White Orchid Bouquet", price: 42.00, category: "plant" },
-    { id: "p3", url: "https://images.unsplash.com/photo-1509423350716-97f9360b4e09?auto=format&fit=crop&q=80&w=800", title: "Peace Lily", price: 28.00, category: "plant" },
-    { id: "p4", url: "https://images.unsplash.com/photo-1485955900006-10f4d324d445?auto=format&fit=crop&q=80&w=800", title: "Succulent Terrarium", price: 24.00, category: "plant" }
+    { id: "p1", url: `${IMAGE_BASE_URL}Monstera%20Deliciosa.png`, title: "Monstera Deliciosa", price: 35.00, category: "plant" },
+    { id: "p2", url: `${IMAGE_BASE_URL}White%20Orchid%20Bouquet.png`, title: "White Orchid Bouquet", price: 42.00, category: "plant" },
+    { id: "p3", url: `${IMAGE_BASE_URL}Peace%20Lily.png`, title: "Peace Lily", price: 28.00, category: "plant" },
+    { id: "p4", url: `${IMAGE_BASE_URL}Succulent%20Terrarium.png`, title: "Succulent Terrarium", price: 24.00, category: "plant" }
   ];
 
   const filteredPlants = useMemo(() => {
@@ -529,7 +534,7 @@ const MockupSection = () => (
           <div className="pt-20">
             <div className="p-3 bg-white hand-drawn-border sketch-shadow">
                <img 
-                src="https://images.unsplash.com/photo-1554160116-73bb8a58e274?auto=format&fit=crop&q=80&w=800" 
+                src={`${IMAGE_BASE_URL}Mockup%20branding.png`} 
                 alt="Mockup branding" 
                 className="rounded-sm"
                 referrerPolicy="no-referrer"
@@ -539,7 +544,7 @@ const MockupSection = () => (
           <div>
             <div className="p-3 bg-white hand-drawn-border sketch-shadow">
               <img 
-                src="https://images.unsplash.com/photo-1620989166449-36605030283e?auto=format&fit=crop&q=80&w=800" 
+                src={`${IMAGE_BASE_URL}Flower%20wrap.png`} 
                 alt="Flower wrap" 
                 className="rounded-sm"
                 referrerPolicy="no-referrer"
